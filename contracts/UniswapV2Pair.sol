@@ -182,6 +182,11 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
     // this low-level function should be called from a contract which performs important safety checks
     // 传入的参数amount0Out，amount1Out,to以及data分别是要购买的token0的数量，token1的数量，接收者的地址，接收后执行回调传递数据。
+    /**
+    The first two parameters, "amount0Out" and "amount1Out", specify the amount of tokens being sold and the amount of tokens being bought, respectively.
+    The third parameter, "to", specifies the address that will receive the purchased tokens.
+    The fourth parameter, "data", is optional and can be used to pass additional data to the contract receiving the tokens.
+    */
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
         // token0和token1哪一个是要购买的token？
         require(amount0Out > 0 || amount1Out > 0, 'UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT');
