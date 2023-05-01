@@ -129,6 +129,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         }
     }
 
+    // mint()用于用户提供流动性时(提供一定比例的两种ERC-20代币)增加流动性代币给流动性提供者
     // this low-level function should be called from a contract which performs important safety checks
     function mint(address to) external lock returns (uint liquidity) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
@@ -153,6 +154,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         emit Mint(msg.sender, amount0, amount1);
     }
 
+    // burn()用于燃烧流动性代币来提取相应的两种资产，并减少交易对的流动性
     // this low-level function should be called from a contract which performs important safety checks
     function burn(address to) external lock returns (uint amount0, uint amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
