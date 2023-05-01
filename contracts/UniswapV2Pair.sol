@@ -189,6 +189,10 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     */
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
         // token0和token1哪一个是要购买的token？
+        /**
+        The function first checks whether the output amounts are greater than 0 and 
+        whether there is enough liquidity in the pool to make the trade. If these conditions are not met, the function will revert.
+         */
         require(amount0Out > 0 || amount1Out > 0, 'UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT');
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, 'UniswapV2: INSUFFICIENT_LIQUIDITY');
