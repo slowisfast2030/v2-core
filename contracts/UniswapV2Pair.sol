@@ -8,6 +8,8 @@ import './interfaces/IERC20.sol';
 import './interfaces/IUniswapV2Factory.sol';
 import './interfaces/IUniswapV2Callee.sol';
 
+//Pair合约主要实现了三个方法：mint（添加流动性）、burn（移除流动性）、swap（兑换）。
+
 contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     using SafeMath  for uint;
     using UQ112x112 for uint224;
