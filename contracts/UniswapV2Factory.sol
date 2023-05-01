@@ -9,7 +9,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
     address public feeToSetter; // 收税权限地址，类似于admin
 
     // 前两个地址分别对应交易对中的两种代币地址，最后一个地址是交易对合约本身地址
-    // 疑问：代币的地址是什么？
+    // 疑问：代币的地址是什么？是不是每种代币都有一个唯一确定的地址？
     mapping(address => mapping(address => address)) public getPair;
     // 用于存放所有交易对（代币对）合约地址信息
     address[] public allPairs;
