@@ -6,7 +6,7 @@ import './UniswapV2Pair.sol';
 // factory contract主要目的是创建流动性池子，每个流动性池子都是一个pair合约
 contract UniswapV2Factory is IUniswapV2Factory {
     address public feeTo; // 收税地址（0.005%的协议费用，到目前为止uniswap也没有设置）
-    address public feeToSetter; // 收税权限地址
+    address public feeToSetter; // 收税权限地址，类似于admin
 
     // 前两个地址分别对应交易对中的两种代币地址，最后一个地址是交易对合约本身地址
     // 疑问：代币的地址是什么？
