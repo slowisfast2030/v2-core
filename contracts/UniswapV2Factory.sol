@@ -53,6 +53,16 @@ contract UniswapV2Factory is IUniswapV2Factory {
         //通过create2方法布署合约,并且加盐,返回地址到pair变量
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
+        /**
+        我们在《深入理解 Uniswap v2 白皮书》中讲到，create2主要用于创建确定性的交易对合约地址，
+        目的是根据两个代币地址直接计算pair地址，而无需调用链上合约查询。
+
+        CREATE2出自EIP-1014，根据规范，这里能够影响最终生成地址的是用户自定义的salt值，
+        只需要保证每次生成交易对合约时提供的salt值不同即可.
+        对于同一个交易对的两种代币，其salt值应该一样；
+        这里很容易想到应该使用交易对的两种代币地址，我们希望提供A/B地址的时候可以直接算出pair(A,B)，
+        而两个地址又受顺序影响，因此在合约开始时先对两种代币进行排序，确保其按照从小到大的顺序生成salt值。
+         */
 
         // 调用pair合约的初始化方法，传入参数tA tB
         IUniswapV2Pair(pair).initialize(token0, token1);
