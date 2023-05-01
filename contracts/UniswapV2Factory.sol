@@ -62,6 +62,17 @@ contract UniswapV2Factory is IUniswapV2Factory {
         对于同一个交易对的两种代币，其salt值应该一样；
         这里很容易想到应该使用交易对的两种代币地址，我们希望提供A/B地址的时候可以直接算出pair(A,B)，
         而两个地址又受顺序影响，因此在合约开始时先对两种代币进行排序，确保其按照从小到大的顺序生成salt值。
+        
+        create2(v, p, n, s)
+
+        pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
+        这几个参数含义如下：
+        v=0：向新创建的pair合约中发送的ETH代币数量（单位wei）
+        p=add(bytecode, 32)：合约字节码的起始位置
+        此处为什么要add 32呢？因为bytecode类型为bytes，根据ABI规范，bytes为变长类型，在编码时前32个字节存储bytecode的长度，接着才是bytecode的真正内容，因此合约字节码的起始位置在bytecode+32字节
+        n=mload(bytecode)：合约字节码总字节长度
+        根据上述说明，bytecode前32个字节存储合约字节码的真正长度（以字节为单位），而mload的作用正是读出传入参数的前32个字节的值，因此mload(bytecode)就等于n
+        s=salt：s为自定义传入的salt，即token0和token1合并编码
          */
 
         // 调用pair合约的初始化方法，传入参数tA tB
