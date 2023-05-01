@@ -34,12 +34,17 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     uint public price1CumulativeLast;
     // 某一时刻恒定乘积中的积的值，主要用于开发团队手续费的计算
     uint public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
-
+    
+    // 表示未被锁上的状态，用于下面的修饰器
     uint private unlocked = 1;
+    /**
+    在调用该lock修饰器的函数首先检查unlocked 是否为1，如果不是则报错被锁上，如果是为1，则将unlocked赋值为0（锁上），
+    之后执行被修饰的函数体，此时unlocked已成为0，之后等函数执行完之后再恢复unlocked为1
+     */
     modifier lock() {
         require(unlocked == 1, 'UniswapV2: LOCKED');
         unlocked = 0;
-        _;
+        _; //表示被修饰的函数内容
         unlocked = 1;
     }
 
@@ -49,6 +54,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         _blockTimestampLast = blockTimestampLast;
     }
 
+    // 使用代币的call函数去调用代币合约transfer来发送代币，在这里会检查call调用是否成功以及返回值是否为true
     function _safeTransfer(address token, address to, uint value) private {
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(SELECTOR, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'UniswapV2: TRANSFER_FAILED');
@@ -79,20 +85,29 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
     // update reserves and, on the first call per block, price accumulators
     function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
+        // 验证 balance0 和 blanace1 是否 uint112 的上限
         require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
+        // 只取后32位
         uint32 blockTimestamp = uint32(block.timestamp % 2**32);
+        // 计算当前区块和上一个区块之间的时间差
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
+        /**
+        时间差（两个区块的时间差，不是同一个区块）大于0并且两种资产的数量不为0，才可以进行价格累计计算，
+        如果是同一个区块的第二笔交易及以后的交易，timeElapsed则为0，此时不会计算价格累计值。
+         */
         if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
             // * never overflows, and + overflow is desired
             price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
             price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;
         }
+        // 更新reserve0，reserve1，blockTimestampLast
         reserve0 = uint112(balance0);
         reserve1 = uint112(balance1);
         blockTimestampLast = blockTimestamp;
         emit Sync(reserve0, reserve1);
     }
 
+    // _mintFee()用于在添加流动性和移除流动性时，计算开发团队手续费
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
     function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
         address feeTo = IUniswapV2Factory(factory).feeTo();
