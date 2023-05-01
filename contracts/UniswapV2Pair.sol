@@ -12,19 +12,27 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     using SafeMath  for uint;
     using UQ112x112 for uint224;
 
+    // 定义了最小流动性，在提供初始流动性时会被燃烧掉
     uint public constant MINIMUM_LIQUIDITY = 10**3;
+    // 用于计算ERC-20合约中转移资产的transfer对应的函数选择器
     bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
 
+    // 用于存储factory合约地址
     address public factory;
+    // 用于存储两个token的地址
     address public token0;
     address public token1;
 
+    // 最新恒定乘积中两种代币的数量
     uint112 private reserve0;           // uses single storage slot, accessible via getReserves
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
+    // 记录交易时的区块创建时间
     uint32  private blockTimestampLast; // uses single storage slot, accessible via getReserves
 
+    // 记录交易对中两种价格的累计值
     uint public price0CumulativeLast;
     uint public price1CumulativeLast;
+    // 某一时刻恒定乘积中的积的值，主要用于开发团队手续费的计算
     uint public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
 
     uint private unlocked = 1;
