@@ -41,7 +41,12 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     uint private unlocked = 1;
     /**
     在调用该lock修饰器的函数首先检查unlocked 是否为1，如果不是则报错被锁上，如果是为1，则将unlocked赋值为0（锁上），
-    之后执行被修饰的函数体，此时unlocked已成为0，之后等函数执行完之后再恢复unlocked为1
+    之后执行被修饰的函数体，此时unlocked已成为0，之后等函数执行完之后再恢复unlocked为1。
+     */
+    /**
+    这段代码是用来防止重入攻击的。当函数被外部调用时，unlocked设置为0，函数执行完后才会重新设置为1.
+    在未执行完之前，如果有其他人调用该函数，这是unlocked已经为0，无法通过修饰器重的require检查。
+    当然这里也可以不用0和1，用true和false也是可以的。
      */
     modifier lock() {
         require(unlocked == 1, 'UniswapV2: LOCKED');
@@ -169,7 +174,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         } else {
             liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
         }
-        
+
         require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
         _mint(to, liquidity);
 
