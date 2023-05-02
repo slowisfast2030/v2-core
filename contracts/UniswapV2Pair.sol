@@ -84,6 +84,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     }
 
     // called once by the factory at time of deployment
+    // 进行合约初始化。因为factory合约使用create2函数创建交易对合约，无法向构造函数传递参数，所以需要单独写一个初始化函数
     function initialize(address _token0, address _token1) external {
         require(msg.sender == factory, 'UniswapV2: FORBIDDEN'); // sufficient check
         token0 = _token0;
@@ -136,9 +137,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         }
     }
 
-    // mint()用于用户提供流动性时(提供一定比例的两种ERC-20代币)增加流动性代币给流动性提供者
-    // this low-level function should be called from a contract which performs important safety checks
     
+    // mint()用于用户提供流动性时(提供一定比例的两种ERC-20代币)增加流动性代币给流动性提供者    
     /**
     参数to（表示流动性代币将要转到哪个地址）
     从外部（external）可调用合约
@@ -146,6 +146,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
      */
 
     // 这个函数挺奇怪的。既然是注入流动性，函数参数却没有amount0和amount1。这两个值是通过计算得到的。
+    
+    // this low-level function should be called from a contract which performs important safety checks
+    // 这是一个低等级函数。核心合约对用户不友好，需要通过周边合约来简介交互
     function mint(address to) external lock returns (uint liquidity) {
         // 这里使用了一个小技巧来减少 gas 开销，使用了 uint112 类型来存储代币存储量，
         // 因为根据 Uniswap 规则，代币存储量最多为 2^112 ~ 5.2 × 10^33，可以使用 uint112 类型减少 gas 开销。
