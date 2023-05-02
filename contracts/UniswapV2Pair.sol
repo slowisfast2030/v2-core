@@ -133,14 +133,26 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
     // mint()用于用户提供流动性时(提供一定比例的两种ERC-20代币)增加流动性代币给流动性提供者
     // this low-level function should be called from a contract which performs important safety checks
+    /**
+    参数to（表示流动性代币将要转到哪个地址）
+    从外部（external）可调用合约
+    需要加锁（因为该函数可能会同时被多个用户调用），返回值为流动性代币数量。
+     */
     function mint(address to) external lock returns (uint liquidity) {
+        // 这里使用了一个小技巧来减少 gas 开销，使用了 uint112 类型来存储代币存储量，
+        // 因为根据 Uniswap 规则，代币存储量最多为 2^112 ~ 5.2 × 10^33，可以使用 uint112 类型减少 gas 开销。
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
+
+        // balance0和balance1是流动性池中当前交易对的资产数量
         uint balance0 = IERC20(token0).balanceOf(address(this));
         uint balance1 = IERC20(token1).balanceOf(address(this));
+
+        // amount0和amount1是计算用户新注入的两种ERC20代币的数量
         uint amount0 = balance0.sub(_reserve0);
         uint amount1 = balance1.sub(_reserve1);
 
         bool feeOn = _mintFee(_reserve0, _reserve1);
+        
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         if (_totalSupply == 0) {
             liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
@@ -225,7 +237,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
         uint balance0;
         uint balance1;
-        
+
         { // scope for _token{0,1}, avoids stack too deep errors
         address _token0 = token0;
         address _token1 = token1;
