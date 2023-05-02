@@ -186,6 +186,20 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     // this low-level function should be called from a contract which performs important safety checks
     // 传入的参数amount0Out，amount1Out,to以及data分别是要购买的token0的数量，token1的数量，接收者的地址，接收后执行回调传递数据。
     // 困惑的点：这里为何有两个amountOut？
+    /**
+    new bing:
+    The swap function is the core function that enables flash swaps. 
+    The swap function takes four parameters: amount0Out, amount1Out, to, and data.
+
+    amount0Out and amount1Out are the desired amounts of token0 and token1 to receive from the swap. 
+    One of them must be zero, and the other must be positive.
+
+    to is the address that will receive the output tokens from the swap. 
+    It can be any address, including another smart contract.
+
+    data is an optional parameter that can contain arbitrary bytes. 
+    It can be used to pass additional information or instructions to the recipient of the output tokens.
+     */
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
         // token0和token1哪一个是要购买的token？好问题！
         /**
