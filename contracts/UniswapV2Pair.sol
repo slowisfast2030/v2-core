@@ -201,8 +201,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         address _token1 = token1;
         require(to != _token0 && to != _token1, 'UniswapV2: INVALID_TO');
 
-        // 如果amount0Out大于0，说明要购买token0，则将token0转给 to；
+        // 如果amount0Out大于0，说明要购买token0，则将token0转给 to
         // 如果amount1Out大于0，则说明要购买token1，则将token1转给to
+        // 有没有可能同时购买两种代币呢？
         if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
         if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
 
