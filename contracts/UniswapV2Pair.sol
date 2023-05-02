@@ -149,7 +149,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     
     // this low-level function should be called from a contract which performs important safety checks
     // 这是一个低等级函数。核心合约对用户不友好，需要通过周边合约来简介交互
+    
     /**
+    Keegan小钢：
     既然这是一个添加流动性的底层函数，那参数里为什么没有两个代币投入的数量呢？
     这可能是大部分人会想到的第一个问题。其实，调用该函数之前，路由合约已经完成了将用户的代币数量划转到该配对合约的操作。
     因此，你看前五行代码，通过获取两个币的当前余额 balance0 和 balance1，
@@ -255,6 +257,13 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
     用户可以通过外围合约来间接地调用swap函数，实现他们想要的交易。
      */
+
+    /**
+    Keegan小钢:
+    amount0Out 和 amount1Out 表示兑换结果要转出的 token0 和 token1 的数量，
+    这两个值通常情况下是一个为0，一个不为0，但使用闪电交易时可能两个都不为0。
+    to 参数则是接收者地址，最后的 data 参数是执行回调时的传递数据，通过路由合约兑换的话，该值为0。
+     */ 
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
         // token0和token1哪一个是要购买的token？好问题！
         /**
