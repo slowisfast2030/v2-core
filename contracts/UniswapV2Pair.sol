@@ -200,6 +200,19 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     data is an optional parameter that can contain arbitrary bytes. 
     It can be used to pass additional information or instructions to the recipient of the output tokens.
      */
+    
+    /**
+    swap函数不能被用户直接调用的原因是它不使用标准的ERC-20 transferFrom函数来接收代币，而是检查pair合约的当前和存储的余额之间的差异。
+    这意味着在调用swap函数之前，必须先将代币转移到pair合约，否则它会回滚。
+
+    如果用户直接将代币转移到pair合约，然后再调用swap函数，这样做是不安全的，因为转移的代币可能会被套利者利用。
+    因此，swap函数必须由另一个智能合约来调用，以保证原子性。
+
+    为了方便用户进行交换，Uniswap v2提供了一个外围合约UniswapV2Router02.sol，它包含了各种交换代币的函数，有不同的选项。
+    例如，有些函数允许用ETH交换ERC-20代币或反之，有些函数允许指定输入或输出代币的数量，有些函数允许设置截止时间或最小输出代币数量等。
+
+    用户可以通过外围合约来间接地调用swap函数，实现他们想要的交易。
+     */
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
         // token0和token1哪一个是要购买的token？好问题！
         /**
