@@ -272,6 +272,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
         // 闪电贷的回调函数
         // 普通交易调用的data为空，不会执行回调。闪电贷调用的data不为空，会执行回调。
+        // uniswapV2Call函数是一个可选的回调函数，它允许接收者在接收代币后执行任意代码。
         if (data.length > 0) IUniswapV2Callee(to).uniswapV2Call(msg.sender, amount0Out, amount1Out, data);
 
         // 获取最新的t0和t1余额
