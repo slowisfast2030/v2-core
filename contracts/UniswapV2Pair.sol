@@ -208,7 +208,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
         if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
 
-        // 闪电贷
+        // 闪电贷的回调函数
+        // 普通交易调用的data为空，不会执行回调。闪电贷调用的data不为空，会执行回调。
         if (data.length > 0) IUniswapV2Callee(to).uniswapV2Call(msg.sender, amount0Out, amount1Out, data);
 
         // 获取最新的t0和t1余额
@@ -226,7 +227,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         // 调整后的余额 = 最新余额 - 扣税金额 （相当于乘以997/1000）
         uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));
         uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
-        // 校验是否进行了扣税计算
+
+        // 恒定乘积校验。新的值要大于等于旧的值
         require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K');
         }
 
