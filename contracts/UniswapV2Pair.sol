@@ -157,15 +157,19 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         bool feeOn = _mintFee(_reserve0, _reserve1);
 
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
-        // 若此前从未发行过流动性，说明这是第一次接收注入的pair
+        /**
+        在if语句中，如果_totalSupply为0，则说明是初次提供流动性，会根据恒定乘积公式的平方根来计算，
+        同时要减去已经燃烧掉的初始流动性值，具体为MINIMUM_LIQUIDITY；
+        如果_totalSupply不为0，则会根据已有流动性按比例增发，
+        由于注入了两种代币，所以会有两个计算公式，每种代币按注入比例计算流动性值，取两个中的最小值。
+         */
         if (_totalSupply == 0) {
             liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
            _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
-        } 
-        // 若此前已发行过流动性
-        else {
+        } else {
             liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
         }
+        
         require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
         _mint(to, liquidity);
 
