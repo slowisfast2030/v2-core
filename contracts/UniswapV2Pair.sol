@@ -185,7 +185,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     // this low-level function should be called from a contract which performs important safety checks
     // 传入的参数amount0Out，amount1Out,to以及data分别是要购买的token0的数量，token1的数量，接收者的地址，接收后执行回调传递数据。
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
-        // token0和token1哪一个是要购买的token？
+        // token0和token1哪一个是要购买的token？好问题！
         /**
         The function first checks whether the output amounts are greater than 0 and 
         whether there is enough liquidity in the pool to make the trade. If these conditions are not met, the function will revert.
