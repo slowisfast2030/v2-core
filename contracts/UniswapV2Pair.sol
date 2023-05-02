@@ -149,6 +149,15 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     
     // this low-level function should be called from a contract which performs important safety checks
     // 这是一个低等级函数。核心合约对用户不友好，需要通过周边合约来简介交互
+    /**
+    既然这是一个添加流动性的底层函数，那参数里为什么没有两个代币投入的数量呢？
+    这可能是大部分人会想到的第一个问题。其实，调用该函数之前，路由合约已经完成了将用户的代币数量划转到该配对合约的操作。
+    因此，你看前五行代码，通过获取两个币的当前余额 balance0 和 balance1，
+    再分别减去 _reserve0 和 _reserve1，即池子里两个代币原有的数量，
+    就计算得出了两个代币的投入数量 amount0和 amount1。
+    另外，还给该函数添加了 lock 的修饰器，这是一个防止重入的修饰器，
+    保证了每次添加流动性时不会有多个用户同时往配对合约里转账，不然就没法计算用户的 amount0 和 amount1 了。
+     */
     function mint(address to) external lock returns (uint liquidity) {
         // 这里使用了一个小技巧来减少 gas 开销，使用了 uint112 类型来存储代币存储量，
         // 因为根据 Uniswap 规则，代币存储量最多为 2^112 ~ 5.2 × 10^33，可以使用 uint112 类型减少 gas 开销。
