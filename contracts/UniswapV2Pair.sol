@@ -153,6 +153,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
         _update(balance0, balance1, _reserve0, _reserve1);
         if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
+        // Mint事件：msg.sender为流动性提供者，amount0和amount1为提供的两种资产数量
         emit Mint(msg.sender, amount0, amount1);
     }
 
@@ -226,6 +227,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         }
 
         _update(balance0, balance1, _reserve0, _reserve1);
+        // Swap事件可以很清楚看到各个参数的含义
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
