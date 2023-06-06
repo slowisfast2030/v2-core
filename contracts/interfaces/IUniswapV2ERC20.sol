@@ -1,5 +1,10 @@
 pragma solidity >=0.5.0;
 
+/**
+uniswap为何要定义自己的erc20接口合约？
+1. 为了兼容erc20接口，可以在其他地方使用uniswap的erc20代币
+2. 为了实现permit方法，permit方法是uniswap自定义的，erc20没有
+ */
 interface IUniswapV2ERC20 {
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
