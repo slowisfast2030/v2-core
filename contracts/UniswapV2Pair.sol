@@ -230,6 +230,10 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         amount0 = liquidity.mul(balance0) / _totalSupply; // using balances ensures pro-rata distribution
         amount1 = liquidity.mul(balance1) / _totalSupply; // using balances ensures pro-rata distribution
         require(amount0 > 0 && amount1 > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_BURNED');
+        
+        // 移除流动性需要修改3个账本
+        // 1.流动性代币账本：就是当前合约的balanceOf和totalSupply的操作
+        // 2.两种资产账本：需要进行函数调用
         _burn(address(this), liquidity);
         _safeTransfer(_token0, to, amount0);
         _safeTransfer(_token1, to, amount1);

@@ -3,6 +3,8 @@ pragma solidity =0.5.16;
 import './interfaces/IUniswapV2ERC20.sol';
 import './libraries/SafeMath.sol';
 
+// UniswapV2ERC20的主要目的就是给LP提供生息代币
+// 该合约主要实现了ERC20的接口，同时还实现了一些其他的方法
 contract UniswapV2ERC20 is IUniswapV2ERC20 {
     using SafeMath for uint;
 
