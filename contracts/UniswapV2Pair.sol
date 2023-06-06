@@ -169,6 +169,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     铸币流程发生在router合约向pair合约发送代币之后，因此此次的储备量和合约的token余额是不相等的，
     中间的差值就是需要铸币的token金额，即amount0和amount1。
      */
+    // 这里的to就是流动性提供者的地址
+    // 需要特别明确，这里有三个账本（合约）：token0代币账本、token1代币账本，当前合约
+    // 当前合约有erc20合约的所有函数，当前合约有自己的代币，用来给流动性提供者发token
     function mint(address to) external lock returns (uint liquidity) {
         // 这里使用了一个小技巧来减少 gas 开销，使用了 uint112 类型来存储代币存储量，
         // 因为根据 Uniswap 规则，代币存储量最多为 2^112 ~ 5.2 × 10^33，可以使用 uint112 类型减少 gas 开销。
