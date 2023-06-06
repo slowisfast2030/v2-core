@@ -26,6 +26,10 @@ contract UniswapV2Factory is IUniswapV2Factory {
         return allPairs.length;
     }
 
+    // 通过两种代币地址，创建交易对
+    // 在以太坊中，每一种代币都有一个对应的智能合约的地址
+    // 当后面进行兑换的时候，就会通过这个地址找到对应的智能合约，然后调用智能合约中的方法
+    // 比如：存入ETH，取出USDT，就会通过USDT的智能合约地址，找到USDT的智能合约，然后调用智能合约中的方法
     function createPair(address tokenA, address tokenB) external returns (address pair) {
         require(tokenA != tokenB, 'UniswapV2: IDENTICAL_ADDRESSES');
         // tA 和 tB 进行排序，确保tA小于tB。返回对应的t0和t1

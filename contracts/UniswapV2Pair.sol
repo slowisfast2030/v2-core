@@ -20,6 +20,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
 
     // 用于存储factory合约地址
+    // 很好奇：这个factory是什么时候赋值的？？？
     address public factory;
     // 用于存储两个token的地址
     address public token0;
@@ -62,6 +63,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     }
 
     // 使用代币的call函数去调用代币合约transfer来发送代币，在这里会检查call调用是否成功以及返回值是否为true
+    // 可以简单思考下，这里的to是什么地址？
+    // token假设是DAI合约的地址
+    // 那么to可能是当前合约的地址，也可能是外部用户的地址（提供流动性的用户）
     function _safeTransfer(address token, address to, uint value) private {
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(SELECTOR, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'UniswapV2: TRANSFER_FAILED');
@@ -160,6 +164,11 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     另外，还给该函数添加了 lock 的修饰器，这是一个防止重入的修饰器，
     保证了每次添加流动性时不会有多个用户同时往配对合约里转账，不然就没法计算用户的 amount0 和 amount1 了。
      */
+
+    /**
+    铸币流程发生在router合约向pair合约发送代币之后，因此此次的储备量和合约的token余额是不相等的，
+    中间的差值就是需要铸币的token金额，即amount0和amount1。
+     */
     function mint(address to) external lock returns (uint liquidity) {
         // 这里使用了一个小技巧来减少 gas 开销，使用了 uint112 类型来存储代币存储量，
         // 因为根据 Uniswap 规则，代币存储量最多为 2^112 ~ 5.2 × 10^33，可以使用 uint112 类型减少 gas 开销。
@@ -190,6 +199,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         }
 
         require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
+        // 思考下这里的_mint函数的意义？
+        // 
         _mint(to, liquidity);
 
         _update(balance0, balance1, _reserve0, _reserve1);
